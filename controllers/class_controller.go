@@ -10,8 +10,8 @@ import (
 	"github.com/ulule/deepcopier"
 )
 
-func CreateRoom(c *gin.Context) {
-	var body models.Rooms
+func CreateClass(c *gin.Context) {
+	var body models.Classes
 	if err := c.Bind(&body); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -31,7 +31,7 @@ func CreateRoom(c *gin.Context) {
 	})
 
 }
-func UpdateRoom(c *gin.Context) {
+func UpdateClass(c *gin.Context) {
 	name := c.Param("name")
 	var body struct {
 		Name string
@@ -43,37 +43,37 @@ func UpdateRoom(c *gin.Context) {
 		})
 		return
 	}
-	var room models.Rooms
-	updateBody := &models.Rooms{}
+	var class models.Classes
+	updateBody := &models.Classes{}
 	deepcopier.Copy(body).To(updateBody)
 
-	initializers.DB.First(&room, name)
-	initializers.DB.Model(&room).UpdateColumns(&updateBody)
+	initializers.DB.First(&class, name)
+	initializers.DB.Model(&class).UpdateColumns(&updateBody)
 
-	c.IndentedJSON(http.StatusOK, room)
+	c.IndentedJSON(http.StatusOK, class)
 
 }
-func DeleteRoom(c *gin.Context) {
+func DeleteClass(c *gin.Context) {
 	name := c.Param("name")
 
-	initializers.DB.Delete(&models.Rooms{}, name)
+	initializers.DB.Delete(&models.Classes{}, name)
 	c.Status(http.StatusOK)
 }
 
-func GetRoom(c *gin.Context) {
+func GetClass(c *gin.Context) {
 	name := c.Param("name")
-	var room models.Rooms
-	initializers.DB.Where(&models.Rooms{RoomName: name}).Find(&room)
+	var class models.Classes
+	initializers.DB.Where(&models.Classes{ClassName: name}).Find(&class)
 
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"data": room,
+		"class": class,
 	})
 }
 
-func GetRooms(c *gin.Context) {
-	var room []models.Rooms
-	initializers.DB.Find(&room)
+func GetClasses(c *gin.Context) {
+	var class []models.Classes
+	initializers.DB.Find(&class)
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"data": room,
+		"data": class,
 	})
 }

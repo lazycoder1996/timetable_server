@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"timetable_server/initializers"
 	"timetable_server/models"
 
@@ -10,8 +11,8 @@ import (
 	"github.com/ulule/deepcopier"
 )
 
-func CreateRoom(c *gin.Context) {
-	var body models.Rooms
+func CreateBooking(c *gin.Context) {
+	var body models.Bookings
 	if err := c.Bind(&body); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -31,8 +32,8 @@ func CreateRoom(c *gin.Context) {
 	})
 
 }
-func UpdateRoom(c *gin.Context) {
-	name := c.Param("name")
+func UpdateBooking(c *gin.Context) {
+	id := c.Param("id")
 	var body struct {
 		Name string
 		Size int
@@ -43,37 +44,37 @@ func UpdateRoom(c *gin.Context) {
 		})
 		return
 	}
-	var room models.Rooms
-	updateBody := &models.Rooms{}
+	var booking models.Bookings
+	updateBody := &models.Bookings{}
 	deepcopier.Copy(body).To(updateBody)
 
-	initializers.DB.First(&room, name)
-	initializers.DB.Model(&room).UpdateColumns(&updateBody)
+	initializers.DB.First(&booking, id)
+	initializers.DB.Model(&booking).UpdateColumns(&updateBody)
 
-	c.IndentedJSON(http.StatusOK, room)
+	c.IndentedJSON(http.StatusOK, booking)
 
 }
-func DeleteRoom(c *gin.Context) {
-	name := c.Param("name")
+func DeleteBooking(c *gin.Context) {
+	id := c.Param("id")
 
-	initializers.DB.Delete(&models.Rooms{}, name)
+	initializers.DB.Delete(&models.Bookings{}, id)
 	c.Status(http.StatusOK)
 }
 
-func GetRoom(c *gin.Context) {
-	name := c.Param("name")
-	var room models.Rooms
-	initializers.DB.Where(&models.Rooms{RoomName: name}).Find(&room)
+func GetBooking(c *gin.Context) {
+	id,_ := strconv.Atoi(c.Param("id"))
+	var booking models.Bookings
+	initializers.DB.Where(&models.Bookings{ID: id}).Find(&booking)
 
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"data": room,
+		"data": booking,
 	})
 }
 
-func GetRooms(c *gin.Context) {
-	var room []models.Rooms
-	initializers.DB.Find(&room)
+func GetBookings(c *gin.Context) {
+	var booking []models.Bookings
+	initializers.DB.Find(&booking)
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"data": room,
+		"data": booking,
 	})
 }
