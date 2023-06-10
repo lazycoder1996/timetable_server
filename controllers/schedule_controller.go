@@ -3,7 +3,6 @@ package controllers
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 	"timetable_server/initializers"
 	"timetable_server/models"
 
@@ -62,9 +61,9 @@ func DeleteSchedule(c *gin.Context) {
 }
 
 func GetSchedule(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
+	id := c.Param("id")
 	var schedule models.Schedules
-	initializers.DB.Where(&models.Schedules{ScheduleID: id}).Find(&schedule)
+	initializers.DB.Find(&schedule, id)
 
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"data": schedule,

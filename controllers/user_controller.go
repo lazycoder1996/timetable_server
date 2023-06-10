@@ -1,9 +1,7 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
-	"strconv"
 	"timetable_server/initializers"
 	"timetable_server/models"
 
@@ -11,27 +9,7 @@ import (
 	"github.com/ulule/deepcopier"
 )
 
-func CreateUser(c *gin.Context) {
-	var body models.Users
-	if err := c.Bind(&body); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
-	fmt.Println(&body)
-	res := initializers.DB.Create(&body)
-	if res.Error != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{
-			"error": res.Error.Error(),
-		})
-		return
-	}
-	c.IndentedJSON(http.StatusOK, gin.H{
-		"data": body,
-	})
-
-}
+// UPDATE USER DETAILS
 func UpdateUser(c *gin.Context) {
 	id := c.Param("id")
 	var body struct {
@@ -44,8 +22,8 @@ func UpdateUser(c *gin.Context) {
 		})
 		return
 	}
-	var user models.Users
-	updateBody := &models.Users{}
+	var user models.User
+	updateBody := &models.User{}
 	deepcopier.Copy(body).To(updateBody)
 
 	initializers.DB.First(&user, id)
@@ -54,27 +32,38 @@ func UpdateUser(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, user)
 
 }
+
+// DELETE USER
 func DeleteUser(c *gin.Context) {
 	id := c.Param("id")
 
-	initializers.DB.Delete(&models.Users{}, id)
+	initializers.DB.Delete(&models.User{}, id)
 	c.Status(http.StatusOK)
 }
 
+// GET USER DETAILS
 func GetUser(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
-	var user models.Users
-	initializers.DB.Where(&models.Users{UserID: id}).Find(&user)
-
+	id := c.Param("id")
+	var body models.User
+	initializers.DB.Where(&models.User{Reference: id}).Find(&body)
+	user := &UserResponseBody{}
+	deepcopier.Copy(body).To(user)
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"data": user,
+		"user": user,
 	})
 }
 
+// GET ALL USERS
 func GetUsers(c *gin.Context) {
-	var user []models.Users
+	var user []models.User
 	initializers.DB.Find(&user)
+	var users []UserResponseBody
+	for i := range user {
+		_user := &UserResponseBody{}
+		deepcopier.Copy(i).To(_user)
+		users = append(users, *_user)
+	}
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"data": user,
+		"users": users,
 	})
 }

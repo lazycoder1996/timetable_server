@@ -11,6 +11,7 @@ import (
 func init() {
 	initializers.LoadEnvVariables()
 	initializers.ConnectToDB()
+	// migrate.SyncDB()
 }
 
 func main() {
@@ -26,6 +27,12 @@ func main() {
 	// 	ctx.HTML(http.StatusOK, "index.tmpl.html", nil)
 	// })
 	api := r.Group("api")
+	auth := api.Group("auth")
+	{
+		auth.POST("/login", controllers.LoginUser)
+		auth.POST("/register", controllers.CreateUser)
+	}
+
 	rooms := api.Group("rooms")
 	{
 		rooms.POST("/", controllers.CreateRoom)
@@ -33,6 +40,8 @@ func main() {
 		rooms.GET("/:name", controllers.GetRoom)
 		rooms.PUT("/:name", controllers.UpdateRoom)
 		rooms.DELETE("/:name", controllers.DeleteRoom)
+		rooms.GET("/live", controllers.LiveRooms)
+		rooms.GET("/vacant", controllers.AvailableRooms)
 
 	}
 
@@ -43,18 +52,17 @@ func main() {
 		courses.GET("/:code", controllers.GetCourse)
 		courses.PUT("/:code", controllers.UpdateCourse)
 		courses.DELETE("/:code", controllers.DeleteCourse)
-
 	}
 
-	classes := api.Group("classes")
-	{
-		classes.POST("/", controllers.CreateClass)
-		classes.GET("/", controllers.GetClasses)
-		classes.GET("/:name", controllers.GetClass)
-		classes.PUT("/:name", controllers.UpdateClass)
-		classes.DELETE("/:name", controllers.DeleteClass)
+	// classes := api.Group("classes")
+	// {
+	// classes.POST("/", controllers.CreateClass)
+	// classes.GET("/", controllers.GetClasses)
+	// classes.GET("/:name", controllers.GetClass)
+	// classes.PUT("/:name", controllers.UpdateClass)
+	// classes.DELETE("/:name", controllers.DeleteClass)
 
-	}
+	// }
 
 	bookings := api.Group("bookings")
 	{
@@ -68,12 +76,15 @@ func main() {
 
 	users := api.Group("users")
 	{
-		users.POST("/", controllers.CreateUser)
 		users.GET("/", controllers.GetUsers)
 		users.GET("/:id", controllers.GetUser)
 		users.PUT("/:id", controllers.UpdateUser)
 		users.DELETE("/:id", controllers.DeleteUser)
+	}
 
+	timetable := api.Group("timetable")
+	{
+		timetable.GET("/", controllers.GetTimeTable)
 	}
 
 	schedules := api.Group("schedules")

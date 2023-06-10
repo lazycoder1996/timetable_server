@@ -63,7 +63,7 @@ func DeleteCourse(c *gin.Context) {
 func GetCourse(c *gin.Context) {
 	code := c.Param("code")
 	var course models.Courses
-	initializers.DB.Where(&models.Courses{CourseID: code}).Find(&course)
+	initializers.DB.Where(&models.Courses{CourseName: code}).Find(&course)
 
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"data": course,

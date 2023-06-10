@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"timetable_server/initializers"
@@ -19,7 +18,6 @@ func CreateBooking(c *gin.Context) {
 		})
 		return
 	}
-	fmt.Println(&body)
 	res := initializers.DB.Create(&body)
 	if res.Error != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
@@ -62,7 +60,7 @@ func DeleteBooking(c *gin.Context) {
 }
 
 func GetBooking(c *gin.Context) {
-	id,_ := strconv.Atoi(c.Param("id"))
+	id, _ := strconv.Atoi(c.Param("id"))
 	var booking models.Bookings
 	initializers.DB.Where(&models.Bookings{ID: id}).Find(&booking)
 
