@@ -4,6 +4,7 @@ import (
 	"os"
 	"timetable_server/controllers"
 	"timetable_server/initializers"
+	"timetable_server/migrate"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,7 +12,7 @@ import (
 func init() {
 	initializers.LoadEnvVariables()
 	initializers.ConnectToDB()
-	// migrate.SyncDB()
+	migrate.SyncDB()
 }
 
 func main() {
@@ -42,7 +43,7 @@ func main() {
 		rooms.DELETE("/:name", controllers.DeleteRoom)
 		rooms.GET("/live", controllers.LiveRooms)
 		rooms.GET("/vacant", controllers.AvailableRooms)
-
+		rooms.GET("/available_times", controllers.RoomAvailability)
 	}
 
 	courses := api.Group("courses")
@@ -54,15 +55,14 @@ func main() {
 		courses.DELETE("/:code", controllers.DeleteCourse)
 	}
 
-	// classes := api.Group("classes")
-	// {
-	// classes.POST("/", controllers.CreateClass)
-	// classes.GET("/", controllers.GetClasses)
-	// classes.GET("/:name", controllers.GetClass)
-	// classes.PUT("/:name", controllers.UpdateClass)
-	// classes.DELETE("/:name", controllers.DeleteClass)
-
-	// }
+	classes := api.Group("programme")
+	{
+		classes.POST("/", controllers.CreateProgramme)
+		classes.GET("/", controllers.GetProgrammes)
+		classes.GET("/:name", controllers.GetProgramme)
+		classes.PUT("/:name", controllers.UpdateProgramme)
+		classes.DELETE("/:name", controllers.DeleteProgramme)
+	}
 
 	bookings := api.Group("bookings")
 	{

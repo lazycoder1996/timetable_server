@@ -11,7 +11,7 @@ import (
 )
 
 func CreateCourse(c *gin.Context) {
-	var body models.Courses
+	var body models.Course
 	if err := c.Bind(&body); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -43,8 +43,8 @@ func UpdateCourse(c *gin.Context) {
 		})
 		return
 	}
-	var course models.Courses
-	updateBody := &models.Courses{}
+	var course models.Course
+	updateBody := &models.Course{}
 	deepcopier.Copy(body).To(updateBody)
 
 	initializers.DB.First(&course, code)
@@ -56,14 +56,14 @@ func UpdateCourse(c *gin.Context) {
 func DeleteCourse(c *gin.Context) {
 	code := c.Param("code")
 
-	initializers.DB.Delete(&models.Courses{}, code)
+	initializers.DB.Delete(&models.Course{}, code)
 	c.Status(http.StatusOK)
 }
 
 func GetCourse(c *gin.Context) {
 	code := c.Param("code")
-	var course models.Courses
-	initializers.DB.Where(&models.Courses{CourseName: code}).Find(&course)
+	var course models.Course
+	initializers.DB.Where(&models.Course{CourseName: code}).Find(&course)
 
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"data": course,
@@ -71,7 +71,7 @@ func GetCourse(c *gin.Context) {
 }
 
 func GetCourses(c *gin.Context) {
-	var course []models.Courses
+	var course []models.Course
 	initializers.DB.Find(&course)
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"data": course,

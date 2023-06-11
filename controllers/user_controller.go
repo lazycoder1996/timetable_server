@@ -13,8 +13,8 @@ import (
 func UpdateUser(c *gin.Context) {
 	id := c.Param("id")
 	var body struct {
-		Name string
-		Size int
+		Notification int
+		Role int
 	}
 	if err := c.BindJSON(&body); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
@@ -60,7 +60,7 @@ func GetUsers(c *gin.Context) {
 	var users []UserResponseBody
 	for i := range user {
 		_user := &UserResponseBody{}
-		deepcopier.Copy(i).To(_user)
+		deepcopier.Copy(user[i]).To(_user)
 		users = append(users, *_user)
 	}
 	c.IndentedJSON(http.StatusOK, gin.H{

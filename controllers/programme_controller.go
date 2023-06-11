@@ -10,8 +10,8 @@ import (
 	"github.com/ulule/deepcopier"
 )
 
-func CreateSchedule(c *gin.Context) {
-	var body models.Schedule
+func CreateProgramme(c *gin.Context) {
+	var body models.Programme
 	if err := c.Bind(&body); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -27,12 +27,12 @@ func CreateSchedule(c *gin.Context) {
 		return
 	}
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"data": body,
+		"programme": body,
 	})
 
 }
-func UpdateSchedule(c *gin.Context) {
-	id := c.Param("id")
+func UpdateProgramme(c *gin.Context) {
+	name := c.Param("name")
 	var body struct {
 		Name string
 		Size int
@@ -43,37 +43,37 @@ func UpdateSchedule(c *gin.Context) {
 		})
 		return
 	}
-	var schedule models.Schedule
-	updateBody := &models.Schedule{}
+	var programme models.Programme
+	updateBody := &models.Programme{}
 	deepcopier.Copy(body).To(updateBody)
 
-	initializers.DB.First(&schedule, id)
-	initializers.DB.Model(&schedule).UpdateColumns(&updateBody)
+	initializers.DB.First(&programme, name)
+	initializers.DB.Model(&programme).UpdateColumns(&updateBody)
 
-	c.IndentedJSON(http.StatusOK, schedule)
+	c.IndentedJSON(http.StatusOK, programme)
 
 }
-func DeleteSchedule(c *gin.Context) {
-	id := c.Param("id")
+func DeleteProgramme(c *gin.Context) {
+	name := c.Param("name")
 
-	initializers.DB.Delete(&models.Schedule{}, id)
+	initializers.DB.Delete(&models.Programme{}, name)
 	c.Status(http.StatusOK)
 }
 
-func GetSchedule(c *gin.Context) {
-	id := c.Param("id")
-	var schedule models.Schedule
-	initializers.DB.Find(&schedule, id)
+func GetProgramme(c *gin.Context) {
+	name := c.Param("name")
+	var programme models.Programme
+	initializers.DB.Where(&models.Programme{}, name).Find(&programme)
 
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"data": schedule,
+		"programme": programme,
 	})
 }
 
-func GetSchedules(c *gin.Context) {
-	var schedule []models.Schedule
-	initializers.DB.Find(&schedule)
+func GetProgrammes(c *gin.Context) {
+	var programmes []models.Programme
+	initializers.DB.Find(&programmes)
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"data": schedule,
+		"programmes": programmes,
 	})
 }

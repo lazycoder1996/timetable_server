@@ -6,5 +6,5 @@ import (
 )
 
 func SyncDB() {
-	initializers.DB.AutoMigrate(&models.Rooms{}, &models.Bookings{}, &models.Programme{}, &models.User{}, &models.Schedules{}, &models.Courses{})
+	initializers.DB.AutoMigrate(&models.Room{}, &models.Booking{}, &models.Programme{}, &models.User{}, &models.Schedule{}, &models.Course{})
 }

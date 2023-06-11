@@ -13,7 +13,7 @@ import (
 )
 
 func CreateRoom(c *gin.Context) {
-	var body models.Rooms
+	var body models.Room
 	if err := c.Bind(&body); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -45,8 +45,8 @@ func UpdateRoom(c *gin.Context) {
 		})
 		return
 	}
-	var room models.Rooms
-	updateBody := &models.Rooms{}
+	var room models.Room
+	updateBody := &models.Room{}
 	deepcopier.Copy(body).To(updateBody)
 
 	initializers.DB.First(&room, name)
@@ -58,14 +58,14 @@ func UpdateRoom(c *gin.Context) {
 func DeleteRoom(c *gin.Context) {
 	name := c.Param("name")
 
-	initializers.DB.Delete(&models.Rooms{}, name)
+	initializers.DB.Delete(&models.Room{}, name)
 	c.Status(http.StatusOK)
 }
 
 func GetRoom(c *gin.Context) {
 	name := c.Param("name")
-	var room models.Rooms
-	initializers.DB.Where(&models.Rooms{RoomName: name}).Find(&room)
+	var room models.Room
+	initializers.DB.Where(&models.Room{RoomName: name}).Find(&room)
 
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"data": room,
@@ -73,7 +73,7 @@ func GetRoom(c *gin.Context) {
 }
 
 func GetRooms(c *gin.Context) {
-	var room []models.Rooms
+	var room []models.Room
 	initializers.DB.Find(&room)
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"data": room,
@@ -91,13 +91,14 @@ type RoomStatusResponse struct {
 	EndTime   int
 }
 
+// ROOMS IN USE AT A GIVEN TIME IN A GIVE DAY OR DATE
 func LiveRooms(c *gin.Context) {
 	date := c.Query("date")
 	time, _ := strconv.Atoi(c.Query("time"))
 	day := c.Query("day")
 
-	var rooms []models.Schedules
-	initializers.DB.Where(&models.Schedules{Date: date}).Where("start_time <= ? and end_time >= ?", time, time).Where("day = ?", day).Find(&rooms)
+	var rooms []models.Schedule
+	initializers.DB.Where(&models.Schedule{Date: date}).Where("start_time <= ? and end_time >= ?", time, time).Where("day = ?", day).Find(&rooms)
 	liveRooms := make([]RoomStatusResponse, 0, 10)
 	for i := range rooms {
 		liveRoom := &RoomStatusResponse{}
@@ -109,12 +110,13 @@ func LiveRooms(c *gin.Context) {
 	})
 }
 
+// EMPTY ROOMS AT A GIVEN TIME IN A GIVEN DAY
 func AvailableRooms(c *gin.Context) {
 	date := c.Query("date")
 	time, _ := strconv.Atoi(c.Query("time"))
 	day := c.Query("day")
-	var rooms []models.Schedules
-	initializers.DB.Where(&models.Schedules{Date: date}).Where("start_time >= ? and end_time <= ?", time, time).Where("day = ?", day).Find(&rooms)
+	var rooms []models.Schedule
+	initializers.DB.Where(&models.Schedule{Date: date}).Where("start_time >= ? and end_time <= ?", time, time).Where("day = ?", day).Find(&rooms)
 	vacantRooms := make([]RoomStatusResponse, 0, 10)
 	for i := range rooms {
 		vacantRoom := &RoomStatusResponse{}
@@ -123,6 +125,18 @@ func AvailableRooms(c *gin.Context) {
 	}
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"rooms": vacantRooms,
+	})
+
+}
+
+// AVAILABLE TIMES WHICH A ROOM BECOMES EMTPY IN A GIVEN DAY/ DATE
+func RoomAvailability(c *gin.Context) {
+	room := c.Param("room")
+	var schedules []models.Schedule
+	initializers.DB.Where(&models.Schedule{Room: room}).Find(&schedules)
+	// TODO: PERFORM OPERATION HERE
+	c.IndentedJSON(http.StatusOK, gin.H{
+		"available_times": schedules,
 	})
 
 }

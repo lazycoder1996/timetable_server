@@ -21,7 +21,8 @@ type UserResponseBody struct {
 	Programme      string
 	Year           int
 	ProfilePicture string
-	Notification   string
+	Notification   int
+	Role           int
 }
 
 // CREATE A USER IN DATABASE

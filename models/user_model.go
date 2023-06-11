@@ -12,5 +12,6 @@ type User struct {
 	Programme      string `gorm:"foreignKey:programme_ref" binding:"required"`
 	Year           int    `binding:"required"`
 	ProfilePicture string `json:"profilepic"`
-	Notification   string `json:"notification"`
+	Notification   int `json:"notification"`
+	Role           int    `gorm:"default:0"`
 }
