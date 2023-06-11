@@ -69,10 +69,12 @@ func LoginUser(c *gin.Context) {
 	initializers.DB.First(&user, "reference = ?", body.Reference)
 	if user.ID == 0 {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid reference",
+			"error": "Invalid Reference ID",
 		})
 		return
 	}
+	response := &UserResponseBody{}
+	deepcopier.Copy(body).To(response)
 
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
 	if err != nil {
@@ -99,5 +101,6 @@ func LoginUser(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"token": tokenString,
+		"user":  response,
 	})
 }
