@@ -14,15 +14,15 @@ import (
 )
 
 type UserResponseBody struct {
-	Reference      string
-	FirstName      string
-	MiddleName     string
-	Surname        string
-	Programme      string
-	Year           int
-	ProfilePicture string
-	Notification   int
-	Role           int
+	Reference      string `json:"reference"`
+	FirstName      string `json:"first_name"`
+	MiddleName     string `json:"middle_name"`
+	Surname        string `json:"surname"`
+	Programme      string `json:"programme"`
+	Year           int    `json:"year"`
+	ProfilePicture string `json:"profile_picture"`
+	Notification   int    `json:"notification"`
+	Role           int    `json:"role"`
 }
 
 // CREATE A USER IN DATABASE
@@ -73,8 +73,6 @@ func LoginUser(c *gin.Context) {
 		})
 		return
 	}
-	response := &UserResponseBody{}
-	deepcopier.Copy(body).To(response)
 
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
 	if err != nil {
@@ -89,6 +87,8 @@ func LoginUser(c *gin.Context) {
 		"sub": user.Reference,
 		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
 	})
+	response := &UserResponseBody{}
+	deepcopier.Copy(user).To(response)
 
 	// Sign and get the complete encode token as a string using the secret key
 	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET")))

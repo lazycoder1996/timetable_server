@@ -4,7 +4,6 @@ import (
 	"os"
 	"timetable_server/controllers"
 	"timetable_server/initializers"
-	"timetable_server/migrate"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,7 +11,7 @@ import (
 func init() {
 	initializers.LoadEnvVariables()
 	initializers.ConnectToDB()
-	migrate.SyncDB()
+	// migrate.SyncDB()
 }
 
 func main() {
