@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"timetable_server/initializers"
 	"timetable_server/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ulule/deepcopier"
-	"gorm.io/gorm"
 )
 
 func CreateRoom(c *gin.Context) {
@@ -82,13 +82,12 @@ func GetRooms(c *gin.Context) {
 
 // GET ROOMS LIVE ROOMS
 type RoomStatusResponse struct {
-	gorm.Model
-	Room      string
-	Programme string
-	Year      int
-	Course    string
-	StartTime int
-	EndTime   int
+	Room      string `json:"room"`
+	Programme string `json:"programme"`
+	Year      int    `json:"year"`
+	Course    string `json:"course"`
+	StartTime int    `json:"start_time"`
+	EndTime   int    `json:"end_time"`
 }
 
 // ROOMS IN USE AT A GIVEN TIME IN A GIVE DAY OR DATE
@@ -98,7 +97,7 @@ func LiveRooms(c *gin.Context) {
 	day := c.Query("day")
 
 	var rooms []models.Schedule
-	initializers.DB.Where(&models.Schedule{Date: date}).Where("start_time <= ? and end_time >= ?", time, time).Where("day = ?", day).Find(&rooms)
+	initializers.DB.Where(&models.Schedule{Date: date}).Where("start_time <= ? and end_time >= ?", time, time).Where("day = ?", strings.ToLower(day)).Find(&rooms)
 	liveRooms := make([]RoomStatusResponse, 0, 10)
 	for i := range rooms {
 		liveRoom := &RoomStatusResponse{}
