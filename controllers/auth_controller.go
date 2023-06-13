@@ -18,7 +18,7 @@ type UserResponseBody struct {
 	FirstName      string `json:"first_name"`
 	MiddleName     string `json:"middle_name"`
 	Surname        string `json:"surname"`
-	Programme      string `json:"programme"`
+	Programme      string `json:"programme_name"`
 	Year           int    `json:"year"`
 	ProfilePicture string `json:"profile_picture"`
 	Notification   int    `json:"notification"`
@@ -67,7 +67,7 @@ func LoginUser(c *gin.Context) {
 	}
 	var user models.User
 	initializers.DB.First(&user, "reference = ?", body.Reference)
-	if user.ID == 0 {
+	if user.Reference == "" {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
 			"error": "Invalid Reference ID",
 		})

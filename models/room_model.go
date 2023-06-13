@@ -1,6 +1,6 @@
 package models
 
 type Room struct {
-	RoomName string `gorm:"primaryKey" binding:"required"`
+	RoomName string `gorm:"primary_key;not null" binding:"required" json:"room_name"`
 	Size     int    `json:"size"`
 }

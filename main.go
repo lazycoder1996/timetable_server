@@ -4,6 +4,7 @@ import (
 	"os"
 	"timetable_server/controllers"
 	"timetable_server/initializers"
+	"timetable_server/migrate"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,7 +12,7 @@ import (
 func init() {
 	initializers.LoadEnvVariables()
 	initializers.ConnectToDB()
-	// migrate.SyncDB()
+	migrate.SyncDB()
 }
 
 func main() {
@@ -54,7 +55,7 @@ func main() {
 		courses.DELETE("/:code", controllers.DeleteCourse)
 	}
 
-	classes := api.Group("programme")
+	classes := api.Group("programmes")
 	{
 		classes.POST("/", controllers.CreateProgramme)
 		classes.GET("/", controllers.GetProgrammes)
@@ -63,15 +64,15 @@ func main() {
 		classes.DELETE("/:name", controllers.DeleteProgramme)
 	}
 
-	bookings := api.Group("bookings")
-	{
-		bookings.POST("/", controllers.CreateBooking)
-		bookings.GET("/", controllers.GetBookings)
-		bookings.GET("/:id", controllers.GetBooking)
-		bookings.PUT("/:id", controllers.UpdateBooking)
-		bookings.DELETE("/:id", controllers.DeleteBooking)
+	// bookings := api.Group("bookings")
+	// {
+	// 	bookings.POST("/", controllers.CreateBooking)
+	// 	bookings.GET("/", controllers.GetBookings)
+	// 	bookings.GET("/:id", controllers.GetBooking)
+	// 	bookings.PUT("/:id", controllers.UpdateBooking)
+	// 	bookings.DELETE("/:id", controllers.DeleteBooking)
 
-	}
+	// }
 
 	users := api.Group("users")
 	{
@@ -83,7 +84,7 @@ func main() {
 
 	timetable := api.Group("timetable")
 	{
-		timetable.GET("/", controllers.GetTimeTable)
+		timetable.GET("", controllers.GetTimeTable)
 	}
 
 	schedules := api.Group("schedules")

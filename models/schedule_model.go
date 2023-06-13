@@ -4,16 +4,17 @@ import "gorm.io/gorm"
 
 type Schedule struct {
 	gorm.Model
-	Room      string `gorm:"foreignKey:room_fkey" binding:"required"`
-	Programme string `gorm:"foreignKey:class_fkey" binding:"required"`
-	Year      int    `binding:"required"`
-	Course    string `gorm:"foreignKey:course_fkey" binding:"required"`
-	Day       string `binding:"required"`
-	StartTime int    `binding:"required"`
-	EndTime   int    `binding:"required"`
-	Recursive int    `binding:"required"`
-	Date      string ``
-	Status    bool   `binding:"required"`
-	BookedBy  int    `gorm:"foreignKey:booked_fkey"`
-	BookingID int
+	Room       string `binding:"required" json:"room"`
+	Programme  string `binding:"required" json:"programme_name"`
+	Year       int    `binding:"required" json:"year"`
+	CourseCode string `gorm:"not null" json:"course_code"`
+	Course     Course `json:"course_details"`
+	Day        string `binding:"required" json:"day"`
+	StartTime  int    `binding:"required" json:"start_time"`
+	EndTime    int    `binding:"required" json:"end_time"`
+	Recursive  int    `binding:"required" json:"recursive"`
+	Date       string `json:"date"`
+	Status     bool   `binding:"required" json:"status"`
+	BookedBy   string `json:"booked_by"`
+	BookingID  int    `json:"booking_id"`
 }

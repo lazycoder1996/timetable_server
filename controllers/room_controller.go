@@ -82,12 +82,13 @@ func GetRooms(c *gin.Context) {
 
 // GET ROOMS LIVE ROOMS
 type RoomStatusResponse struct {
-	Room      string `json:"room"`
-	Programme string `json:"programme"`
-	Year      int    `json:"year"`
-	Course    string `json:"course"`
-	StartTime int    `json:"start_time"`
-	EndTime   int    `json:"end_time"`
+	Room      string        `json:"room"`
+	Programme string        `json:"programme"`
+	Year      int           `json:"year"`
+	Course    models.Course `json:"course"`
+	StartTime int           `json:"start_time"`
+	EndTime   int           `json:"end_time"`
+	Status    bool          `json:"status"`
 }
 
 // ROOMS IN USE AT A GIVEN TIME IN A GIVE DAY OR DATE
@@ -97,7 +98,7 @@ func LiveRooms(c *gin.Context) {
 	day := c.Query("day")
 
 	var rooms []models.Schedule
-	initializers.DB.Where(&models.Schedule{Date: date}).Where("start_time <= ? and end_time >= ?", time, time).Where("day = ?", strings.ToLower(day)).Find(&rooms)
+	initializers.DB.Preload("Course").Where(&models.Schedule{Date: date}).Where("start_time <= ? and end_time >= ?", time, time).Where("day = ?", strings.ToLower(day)).Find(&rooms)
 	liveRooms := make([]RoomStatusResponse, 0, 10)
 	for i := range rooms {
 		liveRoom := &RoomStatusResponse{}
@@ -115,7 +116,8 @@ func AvailableRooms(c *gin.Context) {
 	time, _ := strconv.Atoi(c.Query("time"))
 	day := c.Query("day")
 	var rooms []models.Schedule
-	initializers.DB.Where(&models.Schedule{Date: date}).Where("start_time >= ? and end_time <= ?", time, time).Where("day = ?", day).Find(&rooms)
+	// initializers.DB.Where(&models.Schedule{Date: date}).Where("? < start_time or ? > end_time", time, time).Where("and status = ?", false).Where("day = ? ", day).Find(&rooms)
+	initializers.DB.Where(&models.Schedule{Date: date}).Raw("select * from schedules where ((start_time <= ? and end_time >= ? or start_time >= ? ) or status = false) and day = ?", time, time, time, day).Scan(&rooms)
 	vacantRooms := make([]RoomStatusResponse, 0, 10)
 	for i := range rooms {
 		vacantRoom := &RoomStatusResponse{}

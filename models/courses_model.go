@@ -1,5 +1,6 @@
 package models
 
 type Course struct {
-	CourseName string `gorm:"primaryKey" binding:"required"`
+	Code string `gorm:"primary_key;not null" json:"code"`
+	Name string `gorm:"not null" json:"name"`
 }

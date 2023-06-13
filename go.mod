@@ -37,8 +37,10 @@ require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.3.1 // indirect
+	github.com/jinzhu/gorm v1.9.16
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/lib/pq v1.10.9
 	github.com/ulule/deepcopier v0.0.0-20200430083143-45decc6639b6
 	golang.org/x/crypto v0.9.0
 	golang.org/x/text v0.9.0 // indirect

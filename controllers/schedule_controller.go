@@ -12,14 +12,14 @@ import (
 
 func CreateSchedule(c *gin.Context) {
 	var body models.Schedule
-	if err := c.Bind(&body); err != nil {
+	if err := c.ShouldBindJSON(&body); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
+	res := initializers.DB.Preload("Course").Create(&body)
 	fmt.Println(&body)
-	res := initializers.DB.Create(&body)
 	if res.Error != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
 			"error": res.Error.Error(),
@@ -63,7 +63,7 @@ func DeleteSchedule(c *gin.Context) {
 func GetSchedule(c *gin.Context) {
 	id := c.Param("id")
 	var schedule models.Schedule
-	initializers.DB.Find(&schedule, id)
+	initializers.DB.Preload("Course").Find(&schedule, id)
 
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"data": schedule,
@@ -72,7 +72,7 @@ func GetSchedule(c *gin.Context) {
 
 func GetSchedules(c *gin.Context) {
 	var schedule []models.Schedule
-	initializers.DB.Find(&schedule)
+	initializers.DB.Preload("Course").Find(&schedule)
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"data": schedule,
 	})
