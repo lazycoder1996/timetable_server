@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"strconv"
+	"strings"
 	"timetable_server/initializers"
 	"timetable_server/models"
 
@@ -33,7 +34,7 @@ func GetTimeTable(c *gin.Context) {
 		body.Year, _ = strconv.Atoi(year)
 	}
 	if day != "" {
-		body.Day = day
+		body.Day = strings.ToLower(day)
 	}
 	initializers.DB.Preload("Course").Where(&body).Find(&schedules)
 	timetables := make([]TimetableModel, 0, 10)

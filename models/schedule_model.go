@@ -1,17 +1,14 @@
 package models
 
-import "gorm.io/gorm"
-
 type Schedule struct {
-	gorm.Model
-	Room       string `binding:"required" json:"room"`
+	Room       string `binding:"required" json:"room" gorm:"primary_key"`
 	Programme  string `binding:"required" json:"programme_name"`
 	Year       int    `binding:"required" json:"year"`
 	CourseCode string `gorm:"not null" json:"course_code"`
 	Course     Course `json:"course_details"`
-	Day        string `binding:"required" json:"day"`
-	StartTime  int    `binding:"required" json:"start_time"`
-	EndTime    int    `binding:"required" json:"end_time"`
+	Day        string `binding:"required" json:"day" gorm:"primary_key"`
+	StartTime  int    `binding:"required" json:"start_time" gorm:"primary_key"`
+	EndTime    int    `binding:"required" json:"end_time" gorm:"primary_key"`
 	Recursive  int    `binding:"required" json:"recursive"`
 	Date       string `json:"date"`
 	Status     bool   `binding:"required" json:"status"`

@@ -29,7 +29,7 @@ func CreateRoom(c *gin.Context) {
 		return
 	}
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"data": body,
+		"room": body,
 	})
 
 }
@@ -68,7 +68,7 @@ func GetRoom(c *gin.Context) {
 	initializers.DB.Where(&models.Room{RoomName: name}).Find(&room)
 
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"data": room,
+		"room": room,
 	})
 }
 
@@ -76,7 +76,7 @@ func GetRooms(c *gin.Context) {
 	var room []models.Room
 	initializers.DB.Find(&room)
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"data": room,
+		"rooms": room,
 	})
 }
 
@@ -93,12 +93,14 @@ type RoomStatusResponse struct {
 
 // ROOMS IN USE AT A GIVEN TIME IN A GIVE DAY OR DATE
 func LiveRooms(c *gin.Context) {
-	date := c.Query("date")
+	// date := c.Query("date")
 	time, _ := strconv.Atoi(c.Query("time"))
 	day := c.Query("day")
-
+	query := fmt.Sprintf("drop function if exists open; create function open() returns setof schedules as $$ begin return query select * from schedules where start_time <= %d and end_time > %d and status=true and day = '%s'; end; $$ language 'plpgsql';",
+		time, time, strings.ToLower(day))
+	initializers.DB.Exec(query)
 	var rooms []models.Schedule
-	initializers.DB.Preload("Course").Where(&models.Schedule{Date: date}).Where("start_time <= ? and end_time >= ?", time, time).Where("day = ?", strings.ToLower(day)).Find(&rooms)
+	initializers.DB.Preload("Course").Raw("select * from open()").Find(&rooms)
 	liveRooms := make([]RoomStatusResponse, 0, 10)
 	for i := range rooms {
 		liveRoom := &RoomStatusResponse{}
@@ -112,12 +114,20 @@ func LiveRooms(c *gin.Context) {
 
 // EMPTY ROOMS AT A GIVEN TIME IN A GIVEN DAY
 func AvailableRooms(c *gin.Context) {
-	date := c.Query("date")
+	// date := c.Query("date")
 	time, _ := strconv.Atoi(c.Query("time"))
 	day := c.Query("day")
-	var rooms []models.Schedule
 	// initializers.DB.Where(&models.Schedule{Date: date}).Where("? < start_time or ? > end_time", time, time).Where("and status = ?", false).Where("day = ? ", day).Find(&rooms)
-	initializers.DB.Where(&models.Schedule{Date: date}).Raw("select * from schedules where ((start_time <= ? and end_time >= ? or start_time >= ? ) or status = false) and day = ?", time, time, time, day).Scan(&rooms)
+
+	var rooms []models.Schedule
+	query := fmt.Sprintf("drop function if exists empty; create function empty() returns setof schedules as $$ begin return query select * from schedules where ((start_time <= %d and %d < end_time and status = false) or start_time > %d) and day = '%s'; end; $$ language 'plpgsql';",
+		time, time, time, strings.ToLower(day))
+	cols := "rooms.room_name, ok.programme, ok.year, ok.course_code, ok.day, ok.start_time, ok.end_time, ok.recursive, ok.date, ok.status, ok.booked_by, ok.booking_id"
+	initializers.DB.Exec(query)
+	query = fmt.Sprintf("drop function if exists available_now; create function available_now() returns setof schedules as $$ begin return query select %s from (select * from empty() where room not in (select room from open())) as ok right join rooms on rooms.room_name = ok.room; end; $$ language 'plpgsql';", cols)
+	initializers.DB.Exec(query)
+	// initializers.DB.Where(&models.Schedule{Date: date}).Raw("select * from schedules where ((start_time <= ? and ? < end_time and status = false) or start_time > ?) and day = ?", time, time, time, strings.ToLower(day)).Scan(&rooms)
+	initializers.DB.Preload("Course").Raw("select * from available_now()").Find(&rooms)
 	vacantRooms := make([]RoomStatusResponse, 0, 10)
 	for i := range rooms {
 		vacantRoom := &RoomStatusResponse{}

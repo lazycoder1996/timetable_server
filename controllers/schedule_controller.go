@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"timetable_server/initializers"
 	"timetable_server/models"
 
@@ -18,8 +19,30 @@ func CreateSchedule(c *gin.Context) {
 		})
 		return
 	}
+	// CHECK IF PROGRAMME HAS A CLASS ONGOING
+	var count int
+	classes := initializers.DB.Model(&models.Schedule{}).Where("start_time <= ? and ? < end_time and day = ? and programme = ? and year = ?", body.StartTime, body.StartTime, strings.ToLower(body.Day), body.Programme, body.Year)
+	classes.Count(&count)
+	if count != 0 {
+		var class models.Schedule
+		classes.Find(&class)
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
+			"error": fmt.Sprintf("You already have a class during the given time in %s", class.Room),
+		})
+		return
+	}
+	classes = initializers.DB.Model(&models.Schedule{}).Where("start_time <= ? and ? < end_time and lower = ? and room = ?", body.StartTime, body.StartTime, strings.ToLower(body.Day), body.Room)
+	classes.Count(&count)
+	if count != 0 {
+		var class models.Schedule
+		classes.Find(&class)
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
+			"error": fmt.Sprintf("%s %d already have a class during the given time", class.Programme, class.Year),
+		})
+		return
+	}
+
 	res := initializers.DB.Preload("Course").Create(&body)
-	fmt.Println(&body)
 	if res.Error != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
 			"error": res.Error.Error(),
@@ -61,12 +84,12 @@ func DeleteSchedule(c *gin.Context) {
 }
 
 func GetSchedule(c *gin.Context) {
-	id := c.Param("id")
-	var schedule models.Schedule
-	initializers.DB.Preload("Course").Find(&schedule, id)
+	day := c.Param("day")
+	var schedule []models.Schedule
+	initializers.DB.Preload("Course").Where("day = ? and status= true", day).Find(&schedule)
 
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"data": schedule,
+		"schedules": schedule,
 	})
 }
 

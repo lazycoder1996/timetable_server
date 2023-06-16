@@ -6,6 +6,7 @@ import (
 )
 
 func SyncDB() {
+// initializers.DB.Debug().DropTableIfExists( models.Schedule{})
 	// initializers.DB.Debug().DropTableIfExists(models.User{}, models.Booking{}, models.Room{}, models.Schedule{}, models.Course{}, models.Programme{})
 	initializers.DB.Debug().AutoMigrate(&models.User{}, &models.Programme{}, &models.Room{}, &models.Schedule{}, &models.Course{})
 
@@ -16,4 +17,5 @@ func SyncDB() {
 	initializers.DB.Model(&models.Schedule{}).AddForeignKey("room", "rooms(room_name)", "cascade", "cascade")
 	initializers.DB.Model(&models.Schedule{}).AddForeignKey("course_code", "courses(code)", "cascade", "cascade")
 	initializers.DB.Model(&models.Schedule{}).AddForeignKey("programme", "programmes(programme)", "cascade", "cascade")
+
 }
