@@ -1,7 +1,8 @@
 package models
 
 type Schedule struct {
-	Room       string `binding:"required" json:"room" gorm:"primary_key"`
+	RoomName   string `json:"room_name" gorm:"primary_key;not null"`
+	Room       Room   `json:"room_details"`
 	Programme  string `binding:"required" json:"programme_name"`
 	Year       int    `binding:"required" json:"year"`
 	CourseCode string `gorm:"not null" json:"course_code"`

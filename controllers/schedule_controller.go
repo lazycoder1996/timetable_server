@@ -27,11 +27,11 @@ func CreateSchedule(c *gin.Context) {
 		var class models.Schedule
 		classes.Find(&class)
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
-			"error": fmt.Sprintf("You already have a class during the given time in %s", class.Room),
+			"error": fmt.Sprintf("You already have a class during the given time in %s", class.RoomName),
 		})
 		return
 	}
-	classes = initializers.DB.Model(&models.Schedule{}).Where("start_time <= ? and ? < end_time and lower = ? and room = ?", body.StartTime, body.StartTime, strings.ToLower(body.Day), body.Room)
+	classes = initializers.DB.Model(&models.Schedule{}).Where("start_time <= ? and ? < end_time and lower = ? and room = ?", body.StartTime, body.StartTime, strings.ToLower(body.Day), body.RoomName)
 	classes.Count(&count)
 	if count != 0 {
 		var class models.Schedule

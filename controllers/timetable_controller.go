@@ -17,7 +17,7 @@ type TimetableModel struct {
 	StartTime  int           `json:"start_time"`
 	EndTime    int           `json:"end_time"`
 	Day        string        `json:"day"`
-	Room       string        `json:"room"`
+	Room       models.Room   `json:"room"`
 }
 
 // GET TIMETABLE
@@ -36,7 +36,7 @@ func GetTimeTable(c *gin.Context) {
 	if day != "" {
 		body.Day = strings.ToLower(day)
 	}
-	initializers.DB.Preload("Course").Where(&body).Find(&schedules)
+	initializers.DB.Preload("Room").Preload("Course").Where(&body).Find(&schedules)
 	timetables := make([]TimetableModel, 0, 10)
 	for i := range schedules {
 		timetable := &TimetableModel{}

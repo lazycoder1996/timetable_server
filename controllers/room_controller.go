@@ -65,7 +65,7 @@ func DeleteRoom(c *gin.Context) {
 func GetRoom(c *gin.Context) {
 	name := c.Param("name")
 	var room models.Room
-	initializers.DB.Where(&models.Room{RoomName: name}).Find(&room)
+	initializers.DB.Where(&models.Room{Name: name}).Find(&room)
 
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"room": room,
@@ -81,15 +81,6 @@ func GetRooms(c *gin.Context) {
 }
 
 // GET ROOMS LIVE ROOMS
-type RoomStatusResponse struct {
-	Room      string        `json:"room"`
-	Programme string        `json:"programme"`
-	Year      int           `json:"year"`
-	Course    models.Course `json:"course"`
-	StartTime int           `json:"start_time"`
-	EndTime   int           `json:"end_time"`
-	Status    bool          `json:"status"`
-}
 
 // ROOMS IN USE AT A GIVEN TIME IN A GIVE DAY OR DATE
 func LiveRooms(c *gin.Context) {
@@ -100,10 +91,10 @@ func LiveRooms(c *gin.Context) {
 		time, time, strings.ToLower(day))
 	initializers.DB.Exec(query)
 	var rooms []models.Schedule
-	initializers.DB.Preload("Course").Raw("select * from open()").Find(&rooms)
-	liveRooms := make([]RoomStatusResponse, 0, 10)
+	initializers.DB.Preload("Room").Preload("Course").Raw("select * from open()").Find(&rooms)
+	liveRooms := make([]models.RoomStatusResponse, 0, 10)
 	for i := range rooms {
-		liveRoom := &RoomStatusResponse{}
+		liveRoom := &models.RoomStatusResponse{}
 		deepcopier.Copy(rooms[i]).To(liveRoom)
 		liveRooms = append(liveRooms, *liveRoom)
 	}
@@ -122,15 +113,15 @@ func AvailableRooms(c *gin.Context) {
 	var rooms []models.Schedule
 	query := fmt.Sprintf("drop function if exists empty; create function empty() returns setof schedules as $$ begin return query select * from schedules where ((start_time <= %d and %d < end_time and status = false) or start_time > %d) and day = '%s'; end; $$ language 'plpgsql';",
 		time, time, time, strings.ToLower(day))
-	cols := "rooms.room_name, ok.programme, ok.year, ok.course_code, ok.day, ok.start_time, ok.end_time, ok.recursive, ok.date, ok.status, ok.booked_by, ok.booking_id"
+	cols := "rooms.name, ok.programme, ok.year, ok.course_code, ok.day, ok.start_time, ok.end_time, ok.recursive, ok.date, ok.status, ok.booked_by, ok.booking_id"
 	initializers.DB.Exec(query)
-	query = fmt.Sprintf("drop function if exists available_now; create function available_now() returns setof schedules as $$ begin return query select %s from (select * from empty() where room not in (select room from open())) as ok right join rooms on rooms.room_name = ok.room; end; $$ language 'plpgsql';", cols)
+	query = fmt.Sprintf("drop function if exists available_now; create function available_now() returns setof schedules as $$ begin return query select %s from (select * from empty() where room_name not in (select room_name from open())) as ok right join rooms on rooms.name = ok.room_name; end; $$ language 'plpgsql';", cols)
 	initializers.DB.Exec(query)
 	// initializers.DB.Where(&models.Schedule{Date: date}).Raw("select * from schedules where ((start_time <= ? and ? < end_time and status = false) or start_time > ?) and day = ?", time, time, time, strings.ToLower(day)).Scan(&rooms)
-	initializers.DB.Preload("Course").Raw("select * from available_now()").Find(&rooms)
-	vacantRooms := make([]RoomStatusResponse, 0, 10)
+	initializers.DB.Preload("Room").Preload("Course").Raw("select * from available_now()").Find(&rooms)
+	vacantRooms := make([]models.RoomStatusResponse, 0, 10)
 	for i := range rooms {
-		vacantRoom := &RoomStatusResponse{}
+		vacantRoom := &models.RoomStatusResponse{}
 		deepcopier.Copy(rooms[i]).To(vacantRoom)
 		vacantRooms = append(vacantRooms, *vacantRoom)
 	}
@@ -144,7 +135,7 @@ func AvailableRooms(c *gin.Context) {
 func RoomAvailability(c *gin.Context) {
 	room := c.Param("room")
 	var schedules []models.Schedule
-	initializers.DB.Where(&models.Schedule{Room: room}).Find(&schedules)
+	initializers.DB.Where(&models.Schedule{RoomName: room}).Find(&schedules)
 	// TODO: PERFORM OPERATION HERE
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"available_times": schedules,
