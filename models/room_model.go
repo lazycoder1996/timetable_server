@@ -16,3 +16,9 @@ type RoomStatusResponse struct {
 	EndTime   int    `json:"end_time"`
 	Status    bool   `json:"status"`
 }
+
+type RoomAvailableTimes struct {
+	Day       string `json:"day"`
+	StartTime int    `json:"start_time"`
+	EndTime   int    `json:"end_time"`
+}

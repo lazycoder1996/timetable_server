@@ -31,7 +31,7 @@ func CreateSchedule(c *gin.Context) {
 		})
 		return
 	}
-	classes = initializers.DB.Model(&models.Schedule{}).Where("start_time <= ? and ? < end_time and lower = ? and room = ?", body.StartTime, body.StartTime, strings.ToLower(body.Day), body.RoomName)
+	classes = initializers.DB.Model(&models.Schedule{}).Where("start_time <= ? and ? < end_time and day = ? and room_name = ?", body.StartTime, body.StartTime, strings.ToLower(body.Day), body.RoomName)
 	classes.Count(&count)
 	if count != 0 {
 		var class models.Schedule

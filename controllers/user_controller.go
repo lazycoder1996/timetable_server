@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 	"timetable_server/initializers"
 	"timetable_server/models"
 
@@ -14,7 +15,7 @@ func UpdateUser(c *gin.Context) {
 	id := c.Param("id")
 	var body struct {
 		Notification int
-		Role int
+		Role         int
 	}
 	if err := c.BindJSON(&body); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
@@ -43,7 +44,7 @@ func DeleteUser(c *gin.Context) {
 
 // GET USER DETAILS
 func GetUser(c *gin.Context) {
-	id := c.Param("id")
+	id, _ := strconv.Atoi(c.Param("id"))
 	var body models.User
 	initializers.DB.Where(&models.User{Reference: id}).Find(&body)
 	user := &UserResponseBody{}

@@ -1,7 +1,7 @@
 package models
 
 type User struct {
-	Reference      string `gorm:"PRIMARY_KEY" binding:"required"`
+	Reference      int `gorm:"PRIMARY_KEY" binding:"required"`
 	Password       string `binding:"required"`
 	FirstName      string `binding:"required"`
 	MiddleName     string

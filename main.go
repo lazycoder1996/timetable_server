@@ -64,15 +64,13 @@ func main() {
 		classes.DELETE("/:name", controllers.DeleteProgramme)
 	}
 
-	// bookings := api.Group("bookings")
-	// {
-	// 	bookings.POST("/", controllers.CreateBooking)
-	// 	bookings.GET("/", controllers.GetBookings)
-	// 	bookings.GET("/:id", controllers.GetBooking)
-	// 	bookings.PUT("/:id", controllers.UpdateBooking)
-	// 	bookings.DELETE("/:id", controllers.DeleteBooking)
-
-	// }
+	bookings := api.Group("bookings")
+	{
+		bookings.POST("/", controllers.CreateBooking)
+		bookings.GET("/", controllers.GetBookings)
+		bookings.PUT("/:id", controllers.UpdateBooking)
+		bookings.DELETE("/:id", controllers.DeleteBooking)
+	}
 
 	users := api.Group("users")
 	{
