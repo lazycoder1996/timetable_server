@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"timetable_server/initializers"
@@ -26,29 +25,29 @@ func CreateBooking(c *gin.Context) {
 		})
 		return
 	}
-	var user models.User
-	initializers.DB.Where("reference = ?", body.Reference).Find(&user)
-	fmt.Println(user.Programme)
-	schedule := models.Schedule{
-		RoomName:   body.Room,
-		Programme:  user.Programme,
-		Year:       user.Year,
-		CourseCode: body.CourseCode,
-		Day:        body.Day,
-		StartTime:  body.StartTime,
-		EndTime:    body.EndTime,
-		Recursive:  false,
-		Status:     true,
-		BookedBy:   body.Reference,
-		BookingID:  int(body.ID),
-	}
-	res = initializers.DB.Create(&schedule)
-	if res.Error != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{
-			"error": res.Error.Error(),
-		})
-		return
-	}
+	// var user models.User
+	// initializers.DB.Where("reference = ?", body.Reference).Find(&user)
+	// fmt.Println(user.Programme)
+	// schedule := models.Schedule{
+	// 	RoomName:   body.Room,
+	// 	Programme:  user.Programme,
+	// 	Year:       user.Year,
+	// 	CourseCode: body.CourseCode,
+	// 	Day:        body.Day,
+	// 	StartTime:  body.StartTime,
+	// 	EndTime:    body.EndTime,
+	// 	Recursive:  false,
+	// 	Status:     true,
+	// 	BookedBy:   body.Reference,
+	// 	BookingID:  int(body.ID),
+	// }
+	// res = initializers.DB.Create(&schedule)
+	// if res.Error != nil {
+	// 	c.IndentedJSON(http.StatusBadRequest, gin.H{
+	// 		"error": res.Error.Error(),
+	// 	})
+	// 	return
+	// }
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"booking": body,
 	})
@@ -103,7 +102,7 @@ func GetBooking(c *gin.Context) {
 func GetBookings(c *gin.Context) {
 	userReference := c.Query("reference")
 	var booking []models.Booking
-	initializers.DB.Preload("Course").Where("reference = ?", userReference).Find(&booking)
+	initializers.DB.Preload("Course").Model(&userReference).Where("reference = ?", userReference).Find(&booking)
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"bookings": booking,
 	})

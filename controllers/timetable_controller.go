@@ -26,7 +26,7 @@ func GetTimeTable(c *gin.Context) {
 	year := c.Query("year")
 	day := c.Query("day")
 	var schedules []models.Schedule
-	body := &models.Schedule{Recursive: true}
+	body := &models.Schedule{}
 	if programme != "" {
 		body.Programme = programme
 	}

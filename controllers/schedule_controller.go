@@ -42,13 +42,32 @@ func CreateSchedule(c *gin.Context) {
 		return
 	}
 
-	res := initializers.DB.Preload("Course").Create(&body)
+	// INSERTING INTO BOOKINGS
+	if body.BookedBy != 0 {
+		var booking models.Booking
+		deepcopier.Copy(&body).To(&booking)
+		booking.Reference = body.BookedBy
+		booking.Room = body.RoomName
+		fmt.Println(booking)
+		res := initializers.DB.Create(&booking)
+		if res.Error != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{
+				"error": res.Error.Error(),
+			})
+			return
+		}
+		body.BookingID = int(booking.ID)
+		body.Recursive  = false
+	}
+	fmt.Println(body)
+	res := initializers.DB.Create(&body)
 	if res.Error != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
 			"error": res.Error.Error(),
 		})
 		return
 	}
+	initializers.DB.Preload("Course").Preload("Room").Find(&body)
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"data": body,
 	})
@@ -86,7 +105,7 @@ func DeleteSchedule(c *gin.Context) {
 func GetSchedule(c *gin.Context) {
 	day := c.Param("day")
 	var schedule []models.Schedule
-	initializers.DB.Preload("Course").Where("day = ? and status= true", day).Find(&schedule)
+	initializers.DB.Preload("Course").Preload("Room").Where("day = ? and status= true", day).Find(&schedule)
 
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"schedules": schedule,
@@ -95,7 +114,7 @@ func GetSchedule(c *gin.Context) {
 
 func GetSchedules(c *gin.Context) {
 	var schedule []models.Schedule
-	initializers.DB.Preload("Course").Find(&schedule)
+	initializers.DB.Preload("Course").Preload("Room").Find(&schedule)
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"data": schedule,
 	})

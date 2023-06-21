@@ -10,7 +10,7 @@ type Schedule struct {
 	Day        string `binding:"required" json:"day" gorm:"primary_key"`
 	StartTime  int    `binding:"required" json:"start_time" gorm:"primary_key"`
 	EndTime    int    `binding:"required" json:"end_time" gorm:"primary_key"`
-	Recursive  bool   ` json:"recursive" gorm:"default:true"`
+	Recursive  bool   `json:"recursive"`
 	Date       string `json:"date"`
 	Status     bool   `binding:"required" json:"status" gorm:"default:true"`
 	BookedBy   int    `json:"booked_by"`
