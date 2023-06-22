@@ -30,7 +30,6 @@ func SyncDB() {
 	initializers.DB.Model(&models.Schedule{}).AddForeignKey("course_code", "courses(code)", "cascade", "cascade")
 	initializers.DB.Model(&models.Schedule{}).AddForeignKey("programme", "programmes(programme)", "cascade", "cascade")
 
-	initializers.DB.Model(&models.Course{}).AddForeignKey("programme", "programmes(programme)", "cascade", "cascade")
 
 	initializers.DB.Model(&models.Booking{}).AddForeignKey("reference", "users(reference)", "cascade", "cascade")
 	initializers.DB.Model(&models.Booking{}).AddForeignKey("room", "rooms(name)", "cascade", "cascade")

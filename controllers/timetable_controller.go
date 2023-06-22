@@ -18,6 +18,7 @@ type TimetableModel struct {
 	EndTime    int           `json:"end_time"`
 	Day        string        `json:"day"`
 	Room       models.Room   `json:"room"`
+	Recursive  bool          `json:"recursive"`
 }
 
 // GET TIMETABLE

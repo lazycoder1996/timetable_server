@@ -21,17 +21,17 @@ func CreateSchedule(c *gin.Context) {
 	}
 	// CHECK IF PROGRAMME HAS A CLASS ONGOING
 	var count int
-	classes := initializers.DB.Model(&models.Schedule{}).Where("start_time <= ? and ? < end_time and day = ? and programme = ? and year = ?", body.StartTime, body.StartTime, strings.ToLower(body.Day), body.Programme, body.Year)
+	classes := initializers.DB.Model(&models.Schedule{}).Preload("Course").Where("start_time <= ? and ? < end_time and day = ? and programme = ? and year = ? and status=true", body.StartTime, body.StartTime, strings.ToLower(body.Day), body.Programme, body.Year)
 	classes.Count(&count)
 	if count != 0 {
 		var class models.Schedule
 		classes.Find(&class)
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
-			"error": fmt.Sprintf("You already have a class during the given time in %s", class.RoomName),
+			"error": fmt.Sprintf("You already have %s class during the given time in %s", class.Course.Name, class.RoomName),
 		})
 		return
 	}
-	classes = initializers.DB.Model(&models.Schedule{}).Where("start_time <= ? and ? < end_time and day = ? and room_name = ?", body.StartTime, body.StartTime, strings.ToLower(body.Day), body.RoomName)
+	classes = initializers.DB.Model(&models.Schedule{}).Where("start_time <= ? and ? < end_time and day = ? and room_name = ? and status=true", body.StartTime, body.StartTime, strings.ToLower(body.Day), body.RoomName)
 	classes.Count(&count)
 	if count != 0 {
 		var class models.Schedule
@@ -57,7 +57,7 @@ func CreateSchedule(c *gin.Context) {
 			return
 		}
 		body.BookingID = int(booking.ID)
-		body.Recursive  = false
+		body.Recursive = false
 	}
 	fmt.Println(body)
 	res := initializers.DB.Create(&body)
