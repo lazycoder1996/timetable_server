@@ -21,7 +21,7 @@ func CreateSchedule(c *gin.Context) {
 	}
 	// CHECK IF PROGRAMME HAS A CLASS ONGOING
 	var count int
-	classes := initializers.DB.Model(&models.Schedule{}).Preload("Course").Where("start_time <= ? and ? < end_time and day = ? and programme = ? and year = ? and status=true", body.StartTime, body.StartTime, strings.ToLower(body.Day), body.Programme, body.Year)
+	classes := initializers.DB.Model(&models.Schedule{}).Preload("Course").Where("start_time <= ? and ? < end_time and lower(day) = ? and programme = ? and year = ? and status=true", body.StartTime, body.StartTime, strings.ToLower(body.Day), body.Programme, body.Year)
 	classes.Count(&count)
 	if count != 0 {
 		var class models.Schedule
@@ -31,7 +31,7 @@ func CreateSchedule(c *gin.Context) {
 		})
 		return
 	}
-	classes = initializers.DB.Model(&models.Schedule{}).Where("start_time <= ? and ? < end_time and day = ? and room_name = ? and status=true", body.StartTime, body.StartTime, strings.ToLower(body.Day), body.RoomName)
+	classes = initializers.DB.Model(&models.Schedule{}).Where("start_time <= ? and ? < end_time and lower(day) = ? and room_name = ? and status=true", body.StartTime, body.StartTime, strings.ToLower(body.Day), body.RoomName)
 	classes.Count(&count)
 	if count != 0 {
 		var class models.Schedule
@@ -41,7 +41,7 @@ func CreateSchedule(c *gin.Context) {
 		})
 		return
 	}
-
+	body.Day = strings.ToLower(body.Day)
 	// INSERTING INTO BOOKINGS
 	if body.BookedBy != 0 {
 		var booking models.Booking
@@ -59,7 +59,6 @@ func CreateSchedule(c *gin.Context) {
 		body.BookingID = int(booking.ID)
 		body.Recursive = false
 	}
-	fmt.Println(body)
 	res := initializers.DB.Create(&body)
 	if res.Error != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
@@ -105,7 +104,7 @@ func DeleteSchedule(c *gin.Context) {
 func GetSchedule(c *gin.Context) {
 	day := c.Param("day")
 	var schedule []models.Schedule
-	initializers.DB.Preload("Course").Preload("Room").Where("day = ? and status= true", day).Find(&schedule)
+	initializers.DB.Preload("Course").Preload("Room").Where("lower(day) = ? and status= true", strings.ToLower(day)).Find(&schedule)
 
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"schedules": schedule,

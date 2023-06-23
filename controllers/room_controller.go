@@ -120,7 +120,7 @@ func AvailableRooms(c *gin.Context) {
 
 	// initializers.DB.Where(&models.Schedule{Date: date}).Raw("select * from schedules where ((start_time <= ? and ? < end_time and status = false) or start_time > ?) and day = ?", time, time, time, strings.ToLower(day)).Scan(&rooms)
 
-	query := fmt.Sprintf("select distinct on (room_name) room_name, programme, year, course_code, day, start_time, end_time, recursive, date, status, booked_by, booking_id from available_now(%d, '%s') order by room_name, start_time", time, strings.ToLower(day))
+	query := fmt.Sprintf("select distinct on (room_name) room_name, programme, year, course_code, lower(day), start_time, end_time, recursive, date, status, booked_by, booking_id from available_now(%d, '%s') order by room_name, start_time", time, strings.ToLower(day))
 	initializers.DB.Preload("Room").Preload("Course").Raw(query).Find(&rooms)
 	vacantRooms := make([]models.RoomStatusResponse, 0, 10)
 	for i := range rooms {
@@ -141,7 +141,7 @@ func RoomAvailability(c *gin.Context) {
 	time, _ := strconv.Atoi(c.Query("time"))
 
 	var schedules []models.Schedule
-	initializers.DB.Preload("Room").Preload("Course").Raw("select * from schedules where day = ? and start_time >= ? and room_name = ? and status = true", day, time, room).Find(&schedules)
+	initializers.DB.Preload("Room").Preload("Course").Raw("select * from schedules where lower(day) = ? and start_time >= ? and room_name = ? and status = true", strings.ToLower(day), time, room).Find(&schedules)
 	busyTimes := make([]models.RoomAvailableTimes, 0, 10)
 	for i := range schedules {
 		availableTime := &models.RoomAvailableTimes{}
