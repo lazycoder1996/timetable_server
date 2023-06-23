@@ -13,9 +13,9 @@ import (
 )
 
 func clearData() {
-	initializers.DB.Raw("delete from schedules where recursive = false")
-	initializers.DB.Raw("delete bookings")
-	initializers.DB.Raw("update schedules set status = true")
+	initializers.DB.Exec("delete from schedules where recursive = false")
+	initializers.DB.Exec("delete from bookings")
+	initializers.DB.Exec("update schedules set status = true")
 }
 
 func init() {
@@ -33,7 +33,7 @@ func main() {
 	c := cron.New()
 	c.AddFunc("00 21 * * 5", clearData)
 	c.AddFunc("00 18 * * 1-5", func() {
-		initializers.DB.Raw("delete bookings where lower(day) = ?", strings.ToLower(time.Now().Weekday().String()))
+		initializers.DB.Exec("delete from bookings where lower(day) = ?", strings.ToLower(time.Now().Weekday().String()))
 	})
 	c.Start()
 	// r.LoadHTMLGlob("templates/*.tmpl.html")
