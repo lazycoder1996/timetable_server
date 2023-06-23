@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"time"
 	"timetable_server/controllers"
 	"timetable_server/initializers"
 	"timetable_server/migrate"
@@ -29,7 +30,10 @@ func main() {
 		port = "3000"
 	}
 	c := cron.New()
-	c.AddFunc("00 21 * * ", clearData)
+	c.AddFunc("00 21 * * 5", clearData)
+	c.AddFunc("00 18 * * 1-5", func() {
+		initializers.DB.Raw("delete bookings where day = ?", time.Now().Weekday().String())
+	})
 	c.Start()
 	// r.LoadHTMLGlob("templates/*.tmpl.html")
 	// r.Static("/static", "static")
