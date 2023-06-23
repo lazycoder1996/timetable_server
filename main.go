@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"strings"
 	"time"
 	"timetable_server/controllers"
 	"timetable_server/initializers"
@@ -32,7 +33,7 @@ func main() {
 	c := cron.New()
 	c.AddFunc("00 21 * * 5", clearData)
 	c.AddFunc("00 18 * * 1-5", func() {
-		initializers.DB.Raw("delete bookings where day = ?", time.Now().Weekday().String())
+		initializers.DB.Raw("delete bookings where lower(day) = ?", strings.ToLower(time.Now().Weekday().String()))
 	})
 	c.Start()
 	// r.LoadHTMLGlob("templates/*.tmpl.html")
