@@ -7,7 +7,14 @@ import (
 	"timetable_server/migrate"
 
 	"github.com/gin-gonic/gin"
+	"github.com/robfig/cron/v3"
 )
+
+func clearData() {
+	initializers.DB.Raw("delete from schedules where recursive = false")
+	initializers.DB.Raw("delete bookings")
+	initializers.DB.Raw("update schedules set status = true")
+}
 
 func init() {
 	initializers.LoadEnvVariables()
@@ -21,6 +28,9 @@ func main() {
 	if port == "" {
 		port = "3000"
 	}
+	c := cron.New()
+	c.AddFunc("00 21 * * ", clearData)
+	c.Start()
 	// r.LoadHTMLGlob("templates/*.tmpl.html")
 	// r.Static("/static", "static")
 
