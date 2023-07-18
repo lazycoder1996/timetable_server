@@ -86,7 +86,7 @@ func UpdateBooking(c *gin.Context) {
 func DeleteBooking(c *gin.Context) {
 	id := c.Param("id")
 	initializers.DB.Delete(&models.Booking{}, id)
-	initializers.DB.Delete(models.Schedule{}, id)
+	initializers.DB.Where("booking_id=?", id).Delete(&models.Schedule{})
 	c.Status(http.StatusOK)
 }
 
