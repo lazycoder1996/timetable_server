@@ -1,14 +1,17 @@
 package models
 
+import "mime/multipart"
+
 type User struct {
-	Reference      int `gorm:"PRIMARY_KEY" binding:"required"`
-	Password       string `binding:"required"`
-	FirstName      string `binding:"required"`
-	MiddleName     string
-	Surname        string `binding:"required"`
-	Programme      string `json:"programme_name"`
-	Year           int    `binding:"required"`
-	ProfilePicture string `json:"profilepic"`
-	Notification   int    `json:"notification"`
-	Role           int    `gorm:"default:0"`
+	Reference      int                  `gorm:"PRIMARY_KEY" binding:"required" form:"reference"`
+	Password       string               `binding:"required" form:"password"`
+	FirstName      string               `binding:"required" form:"firstname"`
+	MiddleName     string               `form:"middlename"`
+	Surname        string               `binding:"required" form:"surname"`
+	Programme      string               `form:"programme_name"`
+	Year           int                  `binding:"required" form:"year"`
+	PicturePath    multipart.FileHeader `form:"profilepic"`
+	ProfilePicture string
+	Notification   int `form:"notification"`
+	Role           int `gorm:"default:0" form:"role"`
 }

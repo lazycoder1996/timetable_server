@@ -14,15 +14,15 @@ import (
 )
 
 type UserResponseBody struct {
-	Reference      int    `json:"reference"`
-	FirstName      string `json:"first_name"`
-	MiddleName     string `json:"middle_name"`
-	Surname        string `json:"surname"`
-	Programme      string `json:"programme_name"`
-	Year           int    `json:"year"`
-	ProfilePicture string `json:"profile_picture"`
-	Notification   int    `json:"notification"`
-	Role           int    `json:"role"`
+	Reference      int    `form:"reference"`
+	FirstName      string `form:"firstname"`
+	MiddleName     string `form:"middlename"`
+	Surname        string `form:"surname"`
+	Programme      string `form:"programme_name"`
+	Year           int    `form:"year"`
+	ProfilePicture string `form:"profilepic"`
+	Notification   int    `form:"notification"`
+	Role           int    `form:"role"`
 }
 
 // CREATE A USER IN DATABASE
@@ -30,10 +30,20 @@ func CreateUser(c *gin.Context) {
 	var body models.User
 	if err := c.Bind(&body); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
+			"error here": err.Error(),
 		})
 		return
 	}
+	file, err := c.FormFile("profilepic")
+	if err != nil {
+		c.IndentedJSON(400, gin.H{"error": "invalid file"})
+	}
+
+	err = c.SaveUploadedFile(file, "assets/"+file.Filename)
+	if err != nil {
+		c.IndentedJSON(400, gin.H{"error": "failed saving file"})
+	}
+
 	// Hash the password
 	hash, err := bcrypt.GenerateFromPassword([]byte(body.Password), 14)
 	if err != nil {
@@ -42,6 +52,7 @@ func CreateUser(c *gin.Context) {
 		})
 	}
 	body.Password = string(hash)
+	body.ProfilePicture = file.Filename
 	res := initializers.DB.Create(&body)
 	if res.Error != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
@@ -51,6 +62,7 @@ func CreateUser(c *gin.Context) {
 	}
 	response := &UserResponseBody{}
 	deepcopier.Copy(body).To(response)
+	response.ProfilePicture = file.Filename
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"user": response,
 	})
