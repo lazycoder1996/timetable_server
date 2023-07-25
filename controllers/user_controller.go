@@ -50,7 +50,7 @@ func GetUser(c *gin.Context) {
 	user := &UserResponseBody{}
 	deepcopier.Copy(body).To(user)
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"userjj": user,
+		"user": user,
 	})
 }
 
