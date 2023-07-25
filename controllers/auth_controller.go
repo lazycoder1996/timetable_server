@@ -22,7 +22,7 @@ type UserResponseBody struct {
 	Year           int    `form:"year" json:"year"`
 	ProfilePicture string `form:"profilepic" json:"profile_picture"`
 	Notification   int    `form:"notification" json:"notification"`
-	Role           int    `form:"role json:"role"`
+	Role           int    `form:"role" json:"role"`
 }
 
 // CREATE A USER IN DATABASE
