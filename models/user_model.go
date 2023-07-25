@@ -3,7 +3,7 @@ package models
 import "mime/multipart"
 
 type User struct {
-	Reference      int                  `gorm:"PRIMARY_KEY" binding:"required" form:"reference"`
+	Reference      int                  `gorm:"PRIMARY_KEY" binding:"required" form:"reference" json:"reference"`
 	Password       string               `binding:"required" form:"password"`
 	FirstName      string               `binding:"required" form:"firstname"`
 	MiddleName     string               `form:"middlename"`
