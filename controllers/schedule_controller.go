@@ -73,10 +73,13 @@ func CreateSchedule(c *gin.Context) {
 
 }
 func UpdateSchedule(c *gin.Context) {
-	id := c.Param("id")
 	var body struct {
-		Name string
-		Size int
+		StartTime int    `json:"start_time"`
+		EndTime   int    `json:"end_time"`
+		Programme string `json:"programme"`
+		Year      int    `json:"year"`
+		Room      string `json:"room_name"`
+		Day       string `json:"day"`
 	}
 	if err := c.BindJSON(&body); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
@@ -84,14 +87,12 @@ func UpdateSchedule(c *gin.Context) {
 		})
 		return
 	}
-	var schedule models.Schedule
-	updateBody := &models.Schedule{}
-	deepcopier.Copy(body).To(updateBody)
 
-	initializers.DB.First(&schedule, id)
-	initializers.DB.Model(&schedule).UpdateColumns(&updateBody)
+	initializers.DB.Exec("update schedules set status = false where start_time = ? and end_time = ? and programme = ? and year = ? and room_name = ? and day = ?",
+		body.StartTime, body.EndTime, body.Programme, body.Year, body.Room, body.Day,
+	)
 
-	c.IndentedJSON(http.StatusOK, schedule)
+	c.IndentedJSON(http.StatusOK, body)
 
 }
 func DeleteSchedule(c *gin.Context) {

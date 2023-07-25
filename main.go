@@ -105,7 +105,7 @@ func main() {
 		schedules.POST("/", controllers.CreateSchedule)
 		schedules.GET("/", controllers.GetSchedules)
 		schedules.GET("/:day", controllers.GetSchedule)
-		schedules.PUT("/:id", controllers.UpdateSchedule)
+		schedules.PUT("/", controllers.UpdateSchedule)
 		schedules.DELETE("/:id", controllers.DeleteSchedule)
 
 	}
