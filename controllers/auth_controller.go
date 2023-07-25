@@ -14,15 +14,15 @@ import (
 )
 
 type UserResponseBody struct {
-	Reference      int    `form:"reference"`
-	FirstName      string `form:"firstname"`
-	MiddleName     string `form:"middlename"`
-	Surname        string `form:"surname"`
-	Programme      string `form:"programme_name"`
-	Year           int    `form:"year"`
-	ProfilePicture string `form:"profilepic"`
-	Notification   int    `form:"notification"`
-	Role           int    `form:"role"`
+	Reference      int    `form:"reference" json:"reference"`
+	FirstName      string `form:"firstname" json:"first_name"`
+	MiddleName     string `form:"middlename" json:"middle_name"`
+	Surname        string `form:"surname" json:"surname"`
+	Programme      string `form:"programme_name" json:"programme_name"`
+	Year           int    `form:"year" json:"year"`
+	ProfilePicture string `form:"profilepic" json:"profile_picture"`
+	Notification   int    `form:"notification" json:"notification"`
+	Role           int    `form:"role json:"role"`
 }
 
 // CREATE A USER IN DATABASE
