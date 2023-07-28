@@ -19,6 +19,7 @@ type TimetableModel struct {
 	Day        string        `json:"day"`
 	Room       models.Room   `json:"room"`
 	Recursive  bool          `json:"recursive"`
+	Status     bool          `json:"status"`
 }
 
 // GET TIMETABLE
