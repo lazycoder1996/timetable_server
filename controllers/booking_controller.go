@@ -100,9 +100,12 @@ func GetBooking(c *gin.Context) {
 }
 
 func GetBookings(c *gin.Context) {
-	userReference := c.Query("reference")
+	programme := c.Query("programme")
+	year, _ := strconv.Atoi(c.Query("year"))
 	var booking []models.Booking
-	initializers.DB.Preload("Course").Model(&userReference).Where("reference = ?", userReference).Find(&booking)
+	initializers.DB.Preload("Course").Model(&models.Schedule{
+		Programme: programme, Year: year, Recursive: false,
+	}).Find(&booking)
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"bookings": booking,
 	})
